@@ -57,7 +57,6 @@ const themeOptions = [
 ];
 
 function App() {
-  const messagesContainerRef = useRef(null);
   const [userid, setuserid] = useState("");
   const [roomId, setRoomId] = useState("");
   const [jroomId, setjRoomId] = useState("");
@@ -155,7 +154,7 @@ function App() {
 
   const handleRun = async (e) => {
     e.preventDefault();
-    socket.emit("run", file.language, code, userInput == "" ? null : userInput);
+    socket.emit("run", file.language, code, userInput ==="" ? null : userInput);
   };
   const handleEditorChange = (value, event) => {
     // Handle editor value change
@@ -181,7 +180,7 @@ function App() {
               <button onClick={() => setCh(1)}>Join</button>
               <button
                 onClick={() => {
-                  if (roomId == null || roomId == "") socket.emit("createroom");
+                  if (roomId == null || roomId === "") socket.emit("createroom");
                   setCh(2);
                 }}
               >
