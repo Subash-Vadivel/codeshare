@@ -1,6 +1,5 @@
 import { useRef, useState, useEffect } from "react";
 import Editor from "@monaco-editor/react";
-import axios from "axios";
 import Popup from "reactjs-popup";
 import io from "socket.io-client";
 import "reactjs-popup/dist/index.css";
@@ -168,56 +167,126 @@ function App() {
     socket.emit("join", jroomId);
   };
 
-  }
-  function popContent(){
-    if(ch==1)
-    {
-        return <div className="join-form">
-        <form onSubmit={handleroomsearch}>
-          <input
-            type="text"
-            value={roomId}
-            onChange={(e) => setRoomId(e.target.value)}
-            placeholder="Enter 6-digit Room ID"
-            maxLength={6}
-            required
-          />
-          <button type="submit">Join</button>
-        </form>
-      </div>
-      
-    }
-    else if(ch==2)
-    {
-       return (
-        <div className="room-info">
-        <p className="room-id">{roomId}</p>
-        <p className="room-desc">Share this code to join the room</p>
-      </div>
-       );
-    }
-  }
-  
   return (
-  <>
-
-  <div className="app-container">
-
-  <Popup open={isOpen} onClose={() => setIsOpen(false)} position="right center">
-  <div className="popup-theme">
-    <div className="options">
-      <button onClick={()=>setCh(1)}>Join</button>
-      <button onClick={()=>setCh(2)}>Invite</button>
-      <button onClick={()=>setCh(3)}>Members</button>
-      <button onClick={()=>setCh(4)}>Chat</button>
-
-
-    </div>
-    <div className="content">
-              {popContent()}
-    </div>
-  </div>
-</Popup>
+    <>
+      <div className="app-container">
+        <Popup
+          open={isOpen}
+          onClose={() => setIsOpen(false)}
+          position="right center"
+        >
+          <div className="popup-theme">
+            <div className="options">
+              <button onClick={() => setCh(1)}>Join</button>
+              <button
+                onClick={() => {
+                  if (roomId == null || roomId == "") socket.emit("createroom");
+                  setCh(2);
+                }}
+              >
+                Invite
+              </button>
+              <button onClick={() => setCh(3)}>Members</button>
+              <button onClick={() => setCh(4)}>Chat</button>
+            </div>
+            <div className="content">
+              {ch === 1 ? (
+                <div className="join-form">
+                  {jroomstatus === "1" || jroomstatus === "" ? (
+                    <form onSubmit={handleroomsearch}>
+                      <input
+                        type="text"
+                        value={jroomId}
+                        onChange={(e) => setjRoomId(e.target.value)}
+                        placeholder="Enter 6-digit Room ID"
+                        maxLength={6}
+                        required
+                      />
+                      {jroomstatus}
+                      <button type="submit">Join</button>
+                    </form>
+                  ) : (
+                    <>
+                      <p>{jroomstatus}</p>
+                      {jroomId !== "-1" ? (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            socket.emit("quit");
+                          }}
+                        >
+                          Quit
+                        </button>
+                      ) : (
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            setjroomstatus("");
+                            setjRoomId("");
+                          }}
+                        >
+                          Retry
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
+              ) : ch === 2 ? (
+                <div className="room-info">
+                  <p className="room-id">{roomId}</p>
+                  <p className="room-desc">Share this code to join the room</p>
+                </div>
+              ) : ch === 3 ? (
+                <div className="members-list">
+                  <h2>Members</h2>
+                  <ul>
+                    {members.map((member, index) => (
+                      <li key={index} className="member-item">
+                        {member}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ) : ch === 4 ? (
+                <div className="group-chat">
+                  <div className="messages-container">
+                    <div className="messages">
+                      {messages.map((message, index) => (
+                        <div
+                          key={index}
+                          className={`message ${
+                            message.sender === userid
+                              ? "sent-message"
+                              : "received-message"
+                          }`}
+                        >
+                          <div className="message-content">
+                            <p>{message.content}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <form className="message-input">
+                    <input
+                      type="text"
+                      value={msg}
+                      onChange={(e) => setmsg(e.target.value)}
+                      placeholder="Type your message..."
+                    />
+                    <button
+                      type="submit"
+                      onClick={sendmessage}
+                      className="send-button"
+                    >
+                      Send
+                    </button>
+                  </form>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </Popup>
 
         <header className="header">
           <h1 className="app-name">Code Share</h1>
