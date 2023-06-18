@@ -2,8 +2,10 @@ import { useRef, useState,useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
 import Popup from 'reactjs-popup';
+import io from 'socket.io-client';
 import 'reactjs-popup/dist/index.css';
 import './App.css';
+const socket=io('http://localhost:8000');
 const files = {
   "script.js": {
     name: "script.js",
