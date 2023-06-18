@@ -215,6 +215,23 @@
 .messages-container {
   height: 300px; /* Adjust the height as needed */
   overflow-y: auto;
+  scroll-behavior: smooth;
+}
+.messages-container::-webkit-scrollbar {
+  width: 8px; /* Width of the scrollbar */
+}
+
+.messages-container::-webkit-scrollbar-track {
+  background: #f1f1f1; /* Color of the scrollbar track */
+}
+
+.messages-container::-webkit-scrollbar-thumb {
+  background-color: #888; /* Color of the scrollbar thumb */
+  border-radius: 4px; /* Rounded corners of the scrollbar thumb */
+}
+
+.messages-container::-webkit-scrollbar-thumb:hover {
+  background-color: #555; /* Color of the scrollbar thumb on hover */
 }
 
 .messages {

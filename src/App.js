@@ -57,6 +57,7 @@ const themeOptions = [
 ];
 
 function App() {
+  const messagesContainerRef = useRef(null);
   const [userid, setuserid] = useState("");
   const [roomId, setRoomId] = useState("");
   const [jroomId, setjRoomId] = useState("");
@@ -249,7 +250,7 @@ function App() {
                 </div>
               ) : ch === 4 ? (
                 <div className="group-chat">
-                  <div className="messages-container">
+                  <div className="messages-container" >
                     <div className="messages">
                       {messages.map((message, index) => (
                         <div
