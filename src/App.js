@@ -1,47 +1,50 @@
-import { useRef, useState,useEffect } from 'react';
-import Editor from '@monaco-editor/react';
-import axios from 'axios';
-import Popup from 'reactjs-popup';
-import io from 'socket.io-client';
-import 'reactjs-popup/dist/index.css';
-import './App.css';
-const socket=io('http://localhost:8000');
+import { useRef, useState, useEffect } from "react";
+import Editor from "@monaco-editor/react";
+import axios from "axios";
+import Popup from "reactjs-popup";
+import io from "socket.io-client";
+import "reactjs-popup/dist/index.css";
+import "./App.css";
+const socket = io("http://localhost:8000");
 const files = {
   "script.js": {
     name: "script.js",
     language: "javascript",
-    value: "let a = 1;"
+    value: "let a = 1;",
   },
   "script.py": {
     name: "script.py",
     language: "python",
-    value: "a = 1"
+    value: "a = 1",
   },
   "script.java": {
     name: "script.java",
     language: "java",
-    value: "public class Main {\n    public static void main(String[] args) {\n        int a = 1;\n    }\n}"
+    value:
+      "public class Main {\n    public static void main(String[] args) {\n        int a = 1;\n    }\n}",
   },
   "script.rb": {
     name: "script.rb",
     language: "ruby",
-    value: "a = 1"
+    value: "a = 1",
   },
   "script.cpp": {
     name: "script.cpp",
     language: "cpp",
-    value: "#include <iostream>\n\nint main() {\n    int a = 1;\n    std::cout << a << std::endl;\n    return 0;\n}"
+    value:
+      "#include <iostream>\n\nint main() {\n    int a = 1;\n    std::cout << a << std::endl;\n    return 0;\n}",
   },
   "script.ts": {
     name: "script.ts",
     language: "typescript",
-    value: "let a: number = 1;"
+    value: "let a: number = 1;",
   },
   "script.c": {
     name: "script.c",
     language: "c",
-    value: "#include <stdio.h>\n\nint main() {\n    int a = 1;\n    printf(\"%d\\n\", a);\n    return 0;\n}"
-  }
+    value:
+      '#include <stdio.h>\n\nint main() {\n    int a = 1;\n    printf("%d\\n", a);\n    return 0;\n}',
+  },
 };
 
 const languageOptions = Object.keys(files).map((fileName) => ({
@@ -50,58 +53,120 @@ const languageOptions = Object.keys(files).map((fileName) => ({
 }));
 
 const themeOptions = [
-  { label: 'Light', value: 'vs' },
-  { label: 'Dark', value: 'vs-dark' },
+  { label: "Light", value: "vs" },
+  { label: "Dark", value: "vs-dark" },
 ];
 
 function App() {
-
- 
- const [roomId,setRoomId]=useState('');
-
+  const [userid, setuserid] = useState("");
+  const [roomId, setRoomId] = useState("");
+  const [jroomId, setjRoomId] = useState("");
+  const [jroomstatus, setjroomstatus] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const [code,setCode]=useState('');
-  const [ch,setCh]=useState(1);
+  const [ch, setCh] = useState(1);
+  const [msg, setmsg] = useState("");
+  const [members, setmembers] = useState([]);
+  const [fileName, setFileName] = useState("script.c");
+  const editorRef = useRef(null);
+  const [theme, setTheme] = useState("vs");
+  const [code, setCode] = useState(files[fileName].value);
+  const file = files[fileName];
+  const [userInput, setUserInput] = useState("");
+  const [output, setOutput] = useState("");
+  const [messages, setMessages] = useState([]);
+  useEffect(() => {
+    socket.on("newuserid", (value) => {
+      setuserid(value);
+    });
+    socket.on("updatecode", (value) => {
+      setCode(value);
+    });
+    socket.on("quitdone", () => {
+      setRoomId("");
+      setjRoomId("");
+      setjroomstatus("");
+    });
+    socket.on("roomno", (roomid) => {
+      console.log("working");
+      setRoomId(roomid);
+    });
+    socket.on("roomnotfounderror", () => {
+      setjRoomId("-1");
+      setjroomstatus("Room Not Found !!");
+    });
 
-  const [fileName,setFileName]=useState("script.c");
-  const editorRef=useRef(null);
-  const [theme, setTheme] = useState('vs');
+    socket.on("roomfull", () => {
+      setjRoomId("-1");
+      setjroomstatus("Room Full (Maximum 5 Members Reached)");
+    });
+    socket.on("joined", (newroom) => {
+      setRoomId(newroom);
+      setjroomstatus("Joined the room ");
+    });
+    socket.on("members", (memberslist) => {
+      setmembers(memberslist);
+    });
+    socket.on("output", (data) => {
+      setOutput(data.output);
+    });
+    socket.on("runtimeerror", () => {
+      setOutput("Some Thing Went Wrong Try Again");
+    });
+    socket.on("input", (value) => {
+      setUserInput(value);
+    });
+    socket.on("language", (value) => {
+      setFileName(value);
+    });
+    socket.on("message", (value) => {
+      setMessages(value);
+    });
+  }, []);
+  function sendmessage(event) {
+    event.preventDefault();
+    if (msg === "") {
+      return;
+    }
+    const newMessage = { sender: userid, content: msg };
+    setMessages((prevMessages) => {
+      const updatedMessages = [...prevMessages, newMessage];
+      socket.emit("messagechange", updatedMessages);
+      return updatedMessages;
+    });
+    socket.emit("messagechange", messages);
+    setmsg("");
+  }
 
-  const file=files[fileName];
-  const [userInput, setUserInput] = useState('');
-const [output, setOutput] = useState('');
   function handleInputChange(event) {
+    socket.emit("inputchange", event.target.value);
     setUserInput(event.target.value);
   }
-  function handleEditorDidMount(editor,monaco)
-  {
-    editorRef.current=editor;
+  function handleEditorDidMount(editor, monaco) {
+    editorRef.current = editor;
   }
   function handleLanguageChange(e) {
+    socket.emit("languagechange", e.target.value);
     setFileName(e.target.value);
   }
-  
+
   function handleThemeChange(e) {
     setTheme(e.target.value);
   }
 
-  const handleRun=async()=>{
-         axios.post('http://localhost:5000/ourapi/compiler',{
-          language:file.language=="python"?"python3":file.language,
-          code:code,
-          input:userInput==''?null:userInput
-         }).then((res)=>{
-          setOutput(res.data.output);
-         }).catch((err)=>{
-          setOutput("Some THing Went Wrong Try Again");
-         })
-  }
+  const handleRun = async (e) => {
+    e.preventDefault();
+    socket.emit("run", file.language, code, userInput == "" ? null : userInput);
+  };
   const handleEditorChange = (value, event) => {
     // Handle editor value change
+    socket.emit("codechange", value, roomId);
     setCode(value);
   };
 
-  const handleroomsearch=()=>{
+  const handleroomsearch = (e) => {
+    e.preventDefault();
+    socket.emit("join", jroomId);
+  };
 
   }
   function popContent(){
@@ -154,69 +219,69 @@ const [output, setOutput] = useState('');
   </div>
 </Popup>
 
-
-
-      <header className="header">
-        <h1 className="app-name">Code Share</h1>
-        <div className="dropdowns">
-          <button className="run-button" onClick={() => setIsOpen(true)} >Co-Lab</button>
-          <button className="run-button" onClick={handleRun}>Run</button>
-          <div className="language-dropdown">
-            <select value={fileName} onChange={handleLanguageChange}>
-              {languageOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+        <header className="header">
+          <h1 className="app-name">Code Share</h1>
+          <div className="dropdowns">
+            <button className="run-button" onClick={() => setIsOpen(true)}>
+              Co-Lab
+            </button>
+            <button className="run-button" onClick={handleRun}>
+              Run
+            </button>
+            <div className="language-dropdown">
+              <select value={fileName} onChange={handleLanguageChange}>
+                {languageOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="theme-dropdown">
+              <select value={theme} onChange={handleThemeChange}>
+                {themeOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div className="theme-dropdown">
-            <select value={theme} onChange={handleThemeChange}>
-              {themeOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
+        </header>
+        <div className="editor-container">
+          <Editor
+            height="calc(100vh - 70px)" // Subtract the header height from the viewport height
+            width="100%"
+            theme={theme}
+            onMount={handleEditorDidMount}
+            path={file.name}
+            defaultLanguage={file.language}
+            value={code}
+            onChange={handleEditorChange}
+          />
+        </div>
+        <div className="output-container">
+          <div className="input">
+            <p>Input</p>
+            <textarea
+              value={userInput}
+              onChange={handleInputChange}
+              className="input-textarea"
+              style={{ resize: "none" }}
+            />
+          </div>
+          <div className="output">
+            <p>Output</p>
+            <textarea
+              value={output}
+              readOnly
+              className="output-textarea"
+              style={{ resize: "none" }}
+            />
           </div>
         </div>
-      </header>
-      <div className="editor-container">
-        <Editor
-          height="calc(100vh - 70px)" // Subtract the header height from the viewport height
-          width="100%"
-          theme={theme}
-          onMount={handleEditorDidMount}
-          path={file.name}
-          defaultLanguage={file.language}
-          defaultValue={file.value}
-          onChange={handleEditorChange} 
-        />
       </div>
-      <div className="output-container">
-  <div className="input">
-    <p>Input</p>
-    <textarea
-          value={userInput}
-          onChange={handleInputChange}
-          className="input-textarea"
-          style={{resize:"none"}}
-        />
-    
-  </div>
-  <div className="output">
-    <p>Output</p>
-    <textarea
-          value={output}
-          readOnly
-          className="output-textarea"
-          style={{resize:"none"}}
-        />
-
-  </div>
-</div>
-    </div>
-  </>
+    </>
   );
 }
 

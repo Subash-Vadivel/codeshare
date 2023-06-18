@@ -184,4 +184,100 @@
     font-size: 16px;
   }
   
-  
+  .members-list {
+  background-color: #333;
+  color: white;
+  padding: 10px;
+}
+
+.members-list h2 {
+  color: #ff6f00;
+  font-size: 24px;
+  margin: 0;
+}
+
+.members-list ul {
+  list-style: none;
+  padding: 0;
+}
+
+.members-list .member-item {
+  font-size: 16px;
+  margin-bottom: 5px;
+}
+
+.group-chat {
+  background-color: #333;
+  color: black;
+  padding: 10px;
+  border-radius: 10px;
+}
+.messages-container {
+  height: 300px; /* Adjust the height as needed */
+  overflow-y: auto;
+}
+
+.messages {
+  display: flex;
+  flex-direction: column;
+}
+
+.group-chat .messages {
+  display: flex;
+  flex-direction: column;
+}
+
+.group-chat .message {
+  padding-right: 15px;
+  padding-left: 15px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+/* .group-chat .message-content {
+  background-color: #222;
+} */
+
+.group-chat .message-content p {
+  margin: 0;
+}
+
+.group-chat .sent-message {
+  align-self: flex-end;
+  background-color: #fff;
+}
+
+.group-chat .received-message {
+  align-self: flex-start;
+  background-color: #fff;
+}
+
+.group-chat .message-input {
+  display: flex;
+  margin-top: 10px;
+}
+
+.group-chat .message-input input[type="text"] {
+  flex-grow: 1;
+  height: 30px;
+  padding: 5px;
+  border-radius: 4px;
+  border: none;
+}
+
+.group-chat .message-input .send-button {
+  background-color: #ff6f00;
+  color: white;
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-left: 10px;
+}
+
+.group-chat .message-input .send-button:hover {
+  background-color: #ff8124;
+}
