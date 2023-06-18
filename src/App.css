@@ -95,4 +95,93 @@
     border-radius: 4px;
     font-size: 16px;
   }
+  .popup-theme {
+    background-color: #333;
+    color: white;
+    padding: 10px;
+    border-radius: 4px;
+  }
+  
+  .popup-theme .options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  
+  .popup-theme .options button {
+    flex-grow: 1;
+    background-color: #ff6f00;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+  }
+  
+  .popup-theme .options button:hover {
+    background-color: #ff8124;
+  }
+  
+  .popup-theme .content {
+    margin-top: 10px;
+  }
+  
+  .join-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .join-form form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+  }
+  
+  .join-form input[type="text"] {
+    width: 200px;
+    height: 30px;
+    padding: 5px;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    border: none;
+  }
+  
+  .join-form button {
+    background-color: #ff6f00;
+    color: white;
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .join-form button:hover {
+    background-color: #ff8124;
+  }
+
+  .room-info {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .room-info .room-id {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #ff6f00;
+  }
+  
+  .room-info .room-desc {
+    color: #fff;
+    font-size: 16px;
+  }
+  
   

@@ -1,6 +1,8 @@
 import { useRef, useState,useEffect } from 'react';
 import Editor from '@monaco-editor/react';
 import axios from 'axios';
+import Popup from 'reactjs-popup';
+import 'reactjs-popup/dist/index.css';
 import './App.css';
 const files = {
   "script.js": {
@@ -51,8 +53,15 @@ const themeOptions = [
 ];
 
 function App() {
+
+ 
+ const [roomId,setRoomId]=useState('');
+
+  const [isOpen, setIsOpen] = useState(false);
   const [code,setCode]=useState('');
-  const [fileName,setFileName]=useState("script.js");
+  const [ch,setCh]=useState(1);
+
+  const [fileName,setFileName]=useState("script.c");
   const editorRef=useRef(null);
   const [theme, setTheme] = useState('vs');
 
@@ -89,13 +98,67 @@ const [output, setOutput] = useState('');
     // Handle editor value change
     setCode(value);
   };
+
+  const handleroomsearch=()=>{
+
+  }
+  function popContent(){
+    if(ch==1)
+    {
+        return <div className="join-form">
+        <form onSubmit={handleroomsearch}>
+          <input
+            type="text"
+            value={roomId}
+            onChange={(e) => setRoomId(e.target.value)}
+            placeholder="Enter 6-digit Room ID"
+            maxLength={6}
+            required
+          />
+          <button type="submit">Join</button>
+        </form>
+      </div>
+      
+    }
+    else if(ch==2)
+    {
+       return (
+        <div className="room-info">
+        <p className="room-id">{roomId}</p>
+        <p className="room-desc">Share this code to join the room</p>
+      </div>
+       );
+    }
+  }
   
   return (
   <>
+
   <div className="app-container">
+
+  <Popup open={isOpen} onClose={() => setIsOpen(false)} position="right center">
+  <div className="popup-theme">
+    <div className="options">
+      <button onClick={()=>setCh(1)}>Join</button>
+      <button onClick={()=>setCh(2)}>Invite</button>
+      <button onClick={()=>setCh(3)}>Members</button>
+      <button onClick={()=>setCh(4)}>Chat</button>
+
+
+    </div>
+    <div className="content">
+              {popContent()}
+    </div>
+  </div>
+</Popup>
+
+
+
       <header className="header">
         <h1 className="app-name">Code Share</h1>
         <div className="dropdowns">
+          <button className="run-button" onClick={() => setIsOpen(true)} >Co-Lab</button>
+          <button className="run-button" onClick={handleRun}>Run</button>
           <div className="language-dropdown">
             <select value={fileName} onChange={handleLanguageChange}>
               {languageOptions.map((option) => (
@@ -114,7 +177,6 @@ const [output, setOutput] = useState('');
               ))}
             </select>
           </div>
-          <button className="run-button" onClick={handleRun}>Run</button>
         </div>
       </header>
       <div className="editor-container">
